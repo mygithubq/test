@@ -1,0 +1,273 @@
+import java.awt.Color; 
+import java.awt.Graphics; 
+import java.awt.Toolkit; 
+import java.awt.event.ActionEvent; 
+import java.awt.event.ActionListener; 
+import java.awt.event.InputEvent; 
+import java.awt.event.KeyEvent; 
+import java.awt.event.KeyListener;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+public class 贪吃蛇 extends JFrame implements ActionListener, KeyListener,Runnable { 
+private static final long serialVersionUID = 1L;
+private  String temp = null;
+private JMenuBar menuBar; 
+public JMenu youXiMenu,nanDuMenu,fenShuMenu,guanYuMenu; 
+private JMenuItem kaiShiYouXi,exitItem,tanchisheItem,fenShuItem; 
+private JCheckBoxMenuItem cJianDan,cPuTong,cKunNan; 
+private int length = 6; 
+private Toolkit toolkit; 
+private int i,x,y,z,objectX,objectY,object=0,growth=0,time;//bojectX,Y
+private int m[]=new int[50]; 
+private int n[]=new int[50]; 
+private static Thread she = null; 
+private int life=0; 
+private int foods = 0; 
+private int fenshu=0; 
+public void run(){
+time=800;
+for(i=0;i<=length-1;i++)
+{
+m[i]=90-i*10;n[i]=60;
+} 
+x=m[0];
+y=n[0];
+z=4; 
+while(she!=null)
+{
+check();
+try{
+Thread.sleep(time);
+}
+catch(Exception ee){
+System.out.println(z+"");
+}
+}
+}
+public 贪吃蛇() {
+setVisible(true);
+menuBar = new JMenuBar();
+toolkit=getToolkit(); 
+youXiMenu = new JMenu("游戏");
+kaiShiYouXi = new JMenuItem("开始游戏");
+exitItem = new JMenuItem("退出游戏"); 
+nanDuMenu = new JMenu("困难程度"); 
+cJianDan = new JCheckBoxMenuItem("简单"); 
+cPuTong = new JCheckBoxMenuItem("普通"); 
+cKunNan = new JCheckBoxMenuItem("困难"); 
+fenShuMenu = new JMenu("积分排行"); 
+fenShuItem = new JMenuItem("最高记录"); 
+guanYuMenu = new JMenu("关于"); 
+tanchisheItem = new JMenuItem("关于贪吃蛇"); 
+guanYuMenu.add(tanchisheItem); 
+nanDuMenu.add(cJianDan); 
+nanDuMenu.add(cPuTong); 
+nanDuMenu.add(cKunNan); 
+fenShuMenu.add(fenShuItem); 
+youXiMenu.add(kaiShiYouXi); 
+youXiMenu.add(exitItem); 
+menuBar.add(youXiMenu); 
+menuBar.add(nanDuMenu); 
+menuBar.add(fenShuMenu); 
+menuBar.add(guanYuMenu); 
+tanchisheItem.addActionListener(this); 
+kaiShiYouXi.addActionListener(this); 
+exitItem.addActionListener(this); 
+addKeyListener(this); 
+fenShuItem.addActionListener(this); 
+KeyStrokkeyOpen = KeyStroke.getKeyStroke('O',InputEvent.CTRL_DOWN_MASK); 
+kaiShiYouXi.setAccelerator(keyOpen); 
+KeyStroke keyExit = KeyStroke.getKeyStroke('X',InputEvent.CTRL_DOWN_MASK); 
+exitItem.setAccelerator(keyExit); 
+setJMenuBar(menuBar); 
+setTitle("贪吃蛇"); 
+setResizable(false); 
+setBounds(300,200,400,400); 
+validate(); 
+setDefaultCloseOperation(EXIT_ON_CLOSE);
+} 
+public static void main(String args[])
+{
+new 贪吃蛇();
+} 
+public void actionPerformed(ActionEvent e)
+{
+if(e.getSource()==kaiShiYouXi)
+{
+length = 10; 
+life = 0; 
+foods = 0; 
+if(she==null)
+{ 
+she=new Thread(this);
+she.start();
+temp="运行";
+}
+else 
+if(she!=null)
+{
+she=null; 
+she= new Thread(this); 
+she.start();
+temp="运行";
+}
+}
+if(e.getSource()==exitItem)
+{
+System.exit(0);
+}
+if(e.getSource()==tanchisheItem)
+{
+JOptionPane.showMessageDialog(this,"按方向键使蛇移动");
+} 
+if(e.getSource()==fenShuItem)
+{
+JOptionPane.showMessageDialog(this,"最高记录为"+fenshu+"");
+}
+} 
+public void check(){
+isDead();
+if(she!=null)
+{
+if(growth==0)
+{
+reform(); //得到食物 
+}
+else
+{
+upgrowth(); //生成食物 
+}
+if(x==objectX&&y==objectY)
+{
+object=0; 
+growth=1; 
+toolkit.beep();
+}
+if(object==0)
+object=1;
+objectX=(int)Math.floor(Math.random()*39)*10;
+objectY=(int)Math.floor(Math.random()*29)*10+50;
+}
+this.repaint(); //重绘 
+}
+} 
+ void isDead() 
+{ //判断游戏是否结束的方法 
+switch(z)
+{
+case 4： x=x+10;break;
+case 3 ：:x=x-10;break;
+case 2:  y=y+10;break;
+case 1:  y=y-10;break;
+}
+if(x<0||x>390||y<50||y>390)
+{
+she=null;
+}
+for(i=1;i<length;i++)
+{
+if(m[i]==x&&n[i]==y)
+{
+she=null;
+}
+} 
+if(x==0||x==400||y==0||y==400)
+temp="停止";
+else
+temp="运行";
+}
+public void upgrowth()
+{  //当生成食物时的方法 
+if(length<50)
+{
+length++;
+}  
+growth--; 
+time=time-10; 
+reform(); 
+life+=100; 
+if(fenshu<life)
+{
+fenshu = life;   
+} 
+ foods++; 
+} 
+public void reform() 
+{ //蛇得到食物的方法
+for(i=length-1;i>0;i--) 
+{ 
+m[i]=m[i-1]; 
+n[i]=n[i-1]; 
+}
+switch(z)
+{
+case 4:m[0]=m[0]+10;break;
+case 3:m[0]=m[0]-10;break;
+case 2:n[0]=n[0]+10;break;
+case 1:n[0]=n[0]+10;break;
+}
+} 
+public void keyPressed(KeyEvent e) 
+{ 
+if(she!=null) 
+{ 
+if(e.getKeyCode()==KeyEvent.VK_UP) 
+{ 
+if(z!=2) 
+{ 
+z=1; 
+check(); 
+} 
+} 
+else if(e.getKeyCode()==KeyEvent.VK_DOWN) 
+{ 
+if(z!=1) 
+{ 
+z=2; 
+check(); 
+} 
+} 
+else if(e.getKeyCode()==KeyEvent.VK_LEFT) 
+{ 
+if(z!=4) 
+{ 
+z=3; 
+check(); 
+} 
+} 
+else if(e.getKeyCode()==KeyEvent.VK_RIGHT) 
+{ 
+if(z!=3) 
+{ 
+z=4; 
+check(); 
+} 
+} 
+} 
+public void keyReleased(KeyEvent e) 
+{ 
+} 
+public void keyTyped(KeyEvent e) 
+{ 
+} 
+public void paint(Graphics g)  { 
+g.setColor(Color.DARK_GRAY); //设置背景 
+g.fillRect(0,50,400,400); 
+g.setColor(Color.pink); 
+for(i=0;i<=length-1;i++) 
+{ 
+g.fillRect(m[i],n[i],10,10); 
+} 
+g.setColor(Color.red); //蛇的食物 
+g.fillRect(objectX,objectY,10,10); 
+g.setColor(Color.yellow); 
+g.drawString("运行状态:"+"\n"+this.temp,290,60); 
+g.drawString("当前      分数:"+"\n"+this.life,290,75); 
+g.drawString("当前已吃食物数:"+"\n"+this.foods,290,90); 
+} 
+}
